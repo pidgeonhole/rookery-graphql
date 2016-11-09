@@ -1,0 +1,15 @@
+{
+  "name": "rookery-graphql",
+  "version": "0.1.0",
+  "description": "GraphQL-based implementation of the Pidgeonhole API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jiayu Yi <yi-jiayu@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express-graphql": "^0.5.4",
+    "graphql": "^0.7.2"
+  }
+}
