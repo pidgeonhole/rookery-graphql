@@ -50,9 +50,29 @@ var schema = buildSchema(`
   
   type Problem {
     id: Int!
-    problem_id: Int!
+    category_id: Int!
     title: String!
     description: String!
+  }
+  
+  input ProblemInput {
+    category_id: Int!
+    title: String!
+    description: String!
+  
+  input NestedProblemInput {
+    description: String!
+  }
+  
+  input CategoryInput {
+    name: String!
+    description: String!
+    problems: [NestedProblemInput!]
+  }
+  
+  type Mutation {
+    newCategory(category: CategoryInput!): Category
+    newProblem(problem: ProblemInput!): Problem
   }
 `);
 
@@ -117,6 +137,10 @@ class Problem {
         return this.id;
     }
 
+    category_id() {
+        return fakeDb.problems.find(prob => prob.id === this.id).category_id;
+    }
+
     title() {
         const prob = fakeDb.problems.find(prob => prob.id === this.id) || {};
         return prob.title || null;
@@ -128,12 +152,42 @@ class Problem {
     }
 }
 
+function newCategory({category}) {
+    const newId = Math.max(...fakeDb.categories.map(cat => cat.id)) + 1;
+    const newCat = {
+        id: newId,
+        name: category.name,
+        description: category.description
+    };
+
+    fakeDb.categories.push(newCat);
+
+    if (category.problems) {
+        for (const problem of category.problems) {
+            problem.category_id = newCat;
+            newProblem({problem: problem});
+        }
+    }
+
+    return new Category(newId)
+}
+
+function newProblem({problem}) {
+    problem.id = Math.max(...fakeDb.problems.map(cat => cat.id)) + 1;
+
+    fakeDb.problems.push(problem);
+
+    return new Problem(problem.id);
+}
+
 // The root provides a resolver function for each API endpoint
 var root = {
     categories,
     category,
     problems,
-    problem
+    problem,
+    newCategory,
+    newProblem
 };
 
 var app = express();
